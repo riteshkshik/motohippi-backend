@@ -23,6 +23,7 @@ const corsOptions: cors.CorsOptions = {
     const cleanOrigin = origin.replace(/\/$/, "");
     if (
       allowedOrigins.includes(cleanOrigin) ||
+      cleanOrigin.endsWith("motohippi.com") ||
       cleanOrigin.endsWith(".vercel.app")
     ) {
       return callback(null, true);
