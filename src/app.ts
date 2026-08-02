@@ -6,12 +6,11 @@ import { logger } from "./lib/logger.js";
 
 const app: Express = express();
 
-// ── CORS ─────────────────────────────────────────────────────────────────────
 // Allow origins from FRONTEND_URL env var (comma-separated list supported)
 const rawOrigins = process.env.FRONTEND_URL ?? "";
 const allowedOrigins = rawOrigins
   .split(",")
-  .map((o) => o.trim())
+  .map((o) => o.trim().replace(/\/$/, ""))
   .filter(Boolean);
 
 app.use(
@@ -19,9 +18,17 @@ app.use(
     origin: (origin, callback) => {
       // Allow requests with no origin (curl, Postman, Railway health checks)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.length === 0) return callback(null, true); // dev: allow all
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      callback(new Error(`CORS: origin '${origin}' not allowed`));
+      if (allowedOrigins.length === 0 || allowedOrigins.includes("*")) {
+        return callback(null, true);
+      }
+      const cleanOrigin = origin.replace(/\/$/, "");
+      if (
+        allowedOrigins.includes(cleanOrigin) ||
+        cleanOrigin.endsWith(".vercel.app")
+      ) {
+        return callback(null, true);
+      }
+      callback(null, false);
     },
     credentials: true,
   })
