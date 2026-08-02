@@ -207,6 +207,17 @@ export async function initDatabase() {
           created_at TIMESTAMP DEFAULT NOW() NOT NULL
         );
 
+        CREATE TABLE IF NOT EXISTS events (
+          id SERIAL PRIMARY KEY,
+          title TEXT NOT NULL,
+          date TEXT NOT NULL,
+          location TEXT NOT NULL,
+          image_url TEXT,
+          attendees_count INTEGER DEFAULT 0 NOT NULL,
+          type TEXT DEFAULT 'ride' NOT NULL,
+          created_at TIMESTAMP DEFAULT NOW() NOT NULL
+        );
+
         CREATE TABLE IF NOT EXISTS orders (
           id SERIAL PRIMARY KEY,
           user_id INTEGER NOT NULL REFERENCES users(id),
@@ -223,6 +234,13 @@ export async function initDatabase() {
         INSERT INTO users (name, email, password_hash, username, city, country, vehicle_type, adventure_level, travel_style, is_verified, bio)
         VALUES ('Alex Rider', 'rider@motohippi.com', '${passHash}', 'alex_rider', 'San Francisco', 'USA', 'BMW R1250GS', 'Advanced', 'Solo & Group', true, 'Motorcycle enthusiast and cross-country explorer 🏍️')
         ON CONFLICT (email) DO NOTHING;
+
+        INSERT INTO events (title, date, location, image_url, attendees_count, type)
+        VALUES 
+          ('Coastal Cruiser Rally', '2026-08-15', 'Pacific Coast Highway, CA', 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800', 42, 'rally'),
+          ('Mountain Pass Adventure', '2026-08-20', 'Rocky Mountain NP, CO', 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800', 28, 'ride'),
+          ('Desert Night Ride', '2026-08-28', 'Joshua Tree, CA', 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800', 19, 'night')
+        ON CONFLICT DO NOTHING;
       `);
 
       console.log("✅ Database schema initialized and demo user seeded successfully!");
