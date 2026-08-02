@@ -228,6 +228,14 @@ export async function initDatabase() {
           shipping_address TEXT,
           created_at TIMESTAMP DEFAULT NOW() NOT NULL
         );
+
+        -- Upgrade existing tables with missing columns
+        ALTER TABLE groups ADD COLUMN IF NOT EXISTS type TEXT DEFAULT 'public' NOT NULL;
+        ALTER TABLE groups ADD COLUMN IF NOT EXISTS city TEXT;
+        ALTER TABLE groups ADD COLUMN IF NOT EXISTS created_by_id INTEGER REFERENCES users(id);
+
+        ALTER TABLE posts ADD COLUMN IF NOT EXISTS hashtags JSONB DEFAULT '[]'::jsonb;
+        ALTER TABLE posts ADD COLUMN IF NOT EXISTS location TEXT;
       `);
 
       // Seed default demo user if not existing
@@ -236,6 +244,11 @@ export async function initDatabase() {
         INSERT INTO users (name, email, password_hash, username, city, country, vehicle_type, adventure_level, travel_style, is_verified, bio)
         VALUES ('Alex Rider', 'rider@motohippi.com', '${passHash}', 'alex_rider', 'San Francisco', 'USA', 'BMW R1250GS', 'Advanced', 'Solo & Group', true, 'Motorcycle enthusiast and cross-country explorer 🏍️')
         ON CONFLICT (email) DO NOTHING;
+
+        INSERT INTO groups (name, description, logo_url, cover_url, type, members_count, category, city, created_by_id)
+        SELECT 'Bay Area Motorcyclists', 'The premier riding group for Bay Area riders', 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=200', 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800', 'public', 128, 'General', 'San Francisco', id
+        FROM users WHERE email = 'rider@motohippi.com'
+        ON CONFLICT DO NOTHING;
 
         INSERT INTO events (title, date, location, image_url, attendees_count, type)
         VALUES 
