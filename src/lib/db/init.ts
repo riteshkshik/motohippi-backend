@@ -232,9 +232,9 @@ export async function initDatabase() {
 
       // Individual column migrations to guarantee schema upgrades even if tables pre-exist
       const columnMigrations = [
-        "ALTER TABLE groups ADD COLUMN IF NOT EXISTS type TEXT DEFAULT 'public' NOT NULL",
+        "ALTER TABLE groups ADD COLUMN IF NOT EXISTS type TEXT DEFAULT 'public'",
         "ALTER TABLE groups ADD COLUMN IF NOT EXISTS city TEXT",
-        "ALTER TABLE groups ADD COLUMN IF NOT EXISTS created_by_id INTEGER REFERENCES users(id)",
+        "ALTER TABLE groups ADD COLUMN IF NOT EXISTS created_by_id INTEGER DEFAULT 1",
         "ALTER TABLE posts ADD COLUMN IF NOT EXISTS hashtags JSONB DEFAULT '[]'::jsonb",
         "ALTER TABLE posts ADD COLUMN IF NOT EXISTS location TEXT",
       ];
@@ -242,8 +242,9 @@ export async function initDatabase() {
       for (const query of columnMigrations) {
         try {
           await client.query(query);
-        } catch (mErr) {
-          console.warn(`Migration step notice: ${query}`, mErr);
+          console.log(`✅ Executed migration: ${query}`);
+        } catch (mErr: any) {
+          console.error(`⚠️ Migration step error for "${query}":`, mErr?.message || mErr);
         }
       }
 
