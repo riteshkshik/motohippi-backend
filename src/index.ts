@@ -13,8 +13,13 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${process.env["PORT"]}"`);
 }
 
+import { initDatabase } from "./lib/db/init.js";
+
 app.listen(port, "0.0.0.0", () => {
   logger.info({ port, host: "0.0.0.0" }, "MotoHippi API server listening");
+  initDatabase().catch((err) => {
+    logger.error({ err }, "Database auto-init failed");
+  });
 });
 
 process.on("unhandledRejection", (reason) => {
