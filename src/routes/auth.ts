@@ -91,7 +91,9 @@ export function formatUser(user: typeof usersTable.$inferSelect) {
     followingCount: user.followingCount,
     tripsCount: user.tripsCount,
     isVerified: user.isVerified,
-    createdAt: user.createdAt.toISOString(),
+    createdAt: user.createdAt
+      ? new Date(user.createdAt).toISOString()
+      : new Date().toISOString(),
   };
 }
 
