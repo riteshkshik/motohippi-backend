@@ -47,9 +47,11 @@ export async function initDatabase() {
           description TEXT,
           logo_url TEXT,
           cover_url TEXT,
-          location TEXT,
+          type TEXT DEFAULT 'public' NOT NULL,
+          members_count INTEGER DEFAULT 1 NOT NULL,
           category TEXT,
-          members_count INTEGER DEFAULT 0 NOT NULL,
+          city TEXT,
+          created_by_id INTEGER NOT NULL REFERENCES users(id),
           created_at TIMESTAMP DEFAULT NOW() NOT NULL
         );
 

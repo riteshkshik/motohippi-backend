@@ -29,7 +29,7 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
       id: post.id, content: post.content, imageUrl: post.imageUrl, videoUrl: post.videoUrl,
       author: formatUser(author), likesCount: post.likesCount, commentsCount: post.commentsCount,
       isLiked: false, hashtags: (post.hashtags as string[]) || [],
-      location: post.location, createdAt: post.createdAt.toISOString(),
+      location: post.location, createdAt: post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
     };
   }))).filter(Boolean);
 
@@ -48,7 +48,7 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
       id: g.id, name: g.name, description: g.description, logoUrl: g.logoUrl,
       coverUrl: g.coverUrl, type: g.type, membersCount: g.membersCount,
       category: g.category, city: g.city, createdById: g.createdById,
-      isMember: false, createdAt: g.createdAt.toISOString(),
+      isMember: false, createdAt: g.createdAt ? new Date(g.createdAt).toISOString() : new Date().toISOString(),
     })),
     trendingPosts: formattedPosts,
   });
