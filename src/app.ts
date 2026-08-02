@@ -13,28 +13,34 @@ const allowedOrigins = rawOrigins
   .map((o) => o.trim().replace(/\/$/, ""))
   .filter(Boolean);
 
-const corsOptions: cors.CorsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests with no origin (curl, Postman, Railway health checks)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.length === 0 || allowedOrigins.includes("*")) {
-      return callback(null, true);
-    }
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
     const cleanOrigin = origin.replace(/\/$/, "");
     if (
+      allowedOrigins.length === 0 ||
+      allowedOrigins.includes("*") ||
       allowedOrigins.includes(cleanOrigin) ||
       cleanOrigin.endsWith("motohippi.com") ||
       cleanOrigin.endsWith(".vercel.app")
     ) {
-      return callback(null, true);
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+      );
     }
-    callback(null, false);
-  },
-  credentials: true,
-  optionsSuccessStatus: 200,
-};
+  }
 
-app.use(cors(corsOptions));
+  if (req.method === "OPTIONS") {
+    res.sendStatus(200);
+    return;
+  }
+
+  next();
+});
 
 // ── Body parsing ──────────────────────────────────────────────────────────────
 app.use(express.json({ limit: "10mb" }));
