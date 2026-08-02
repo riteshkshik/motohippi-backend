@@ -13,8 +13,8 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${process.env["PORT"]}"`);
 }
 
-app.listen(port, () => {
-  logger.info({ port }, "MotoHippi API server listening");
+app.listen(port, "0.0.0.0", () => {
+  logger.info({ port, host: "0.0.0.0" }, "MotoHippi API server listening");
 });
 
 process.on("unhandledRejection", (reason) => {

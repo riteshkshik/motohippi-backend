@@ -10,19 +10,23 @@ import * as schema from "./schema/index.js";
 
 const { Pool } = pg;
 
+const dbUrl =
+  process.env.DATABASE_URL ||
+  "postgresql://localhost:5432/motohippi_db";
+
 if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a PostgreSQL database?"
+  console.warn(
+    "⚠️ DATABASE_URL not set in environment. Please configure DATABASE_URL in Railway Variables."
   );
 }
 
 const useSsl =
   process.env.NODE_ENV === "production" ||
-  process.env.DATABASE_URL?.includes("railway") ||
-  process.env.DATABASE_URL?.includes("sslmode=");
+  dbUrl.includes("railway") ||
+  dbUrl.includes("sslmode=");
 
 export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: dbUrl,
   ssl: useSsl ? { rejectUnauthorized: false } : undefined,
 });
 export const db = drizzle(pool, { schema });
