@@ -128,19 +128,24 @@ router.post("/auth/signup", async (req, res) => {
 
 // ── POST /api/auth/login ──────────────────────────────────────────────────────
 router.post("/auth/login", async (req, res) => {
-  const result = LoginBody.safeParse(req.body);
-  if (!result.success) {
-    res.status(400).json({ error: "Invalid input" });
-    return;
+  try {
+    const result = LoginBody.safeParse(req.body);
+    if (!result.success) {
+      res.status(400).json({ error: "Invalid input" });
+      return;
+    }
+    const { email, password } = result.data;
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
+    if (!user || user.passwordHash !== hashPassword(password)) {
+      res.status(401).json({ error: "Invalid credentials" });
+      return;
+    }
+    const token = generateToken(user.id);
+    res.status(200).json({ token, user: formatUser(user), requiresVerification: !user.isVerified });
+  } catch (err: any) {
+    console.error("❌ Login route error:", err);
+    res.status(500).json({ error: "Internal server error", message: err?.message });
   }
-  const { email, password } = result.data;
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
-  if (!user || user.passwordHash !== hashPassword(password)) {
-    res.status(401).json({ error: "Invalid credentials" });
-    return;
-  }
-  const token = generateToken(user.id);
-  res.status(200).json({ token, user: formatUser(user), requiresVerification: !user.isVerified });
 });
 
 // ── POST /api/auth/logout ─────────────────────────────────────────────────────
