@@ -20,14 +20,22 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-const useSsl =
-  process.env.NODE_ENV === "production" ||
-  dbUrl.includes("railway") ||
-  dbUrl.includes("sslmode=");
+const isInternalRailway = dbUrl.includes(".railway.internal");
+const isPublicCloudDb =
+  dbUrl.includes("rlwy.net") ||
+  dbUrl.includes("sslmode=require") ||
+  dbUrl.includes("neon.tech") ||
+  dbUrl.includes("supabase.co");
+
+const sslConfig = isInternalRailway
+  ? false
+  : isPublicCloudDb
+  ? { rejectUnauthorized: false }
+  : false;
 
 export const pool = new Pool({
   connectionString: dbUrl,
-  ssl: useSsl ? { rejectUnauthorized: false } : undefined,
+  ssl: sslConfig,
 });
 export const db = drizzle(pool, { schema });
 
