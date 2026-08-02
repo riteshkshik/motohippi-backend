@@ -1,3 +1,9 @@
+try {
+  process.loadEnvFile();
+} catch {
+  // .env file is optional in production
+}
+
 import { db, usersTable } from "./lib/db/index.js";
 import { hashPassword } from "./lib/auth.js";
 import { eq } from "drizzle-orm";

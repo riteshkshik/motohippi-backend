@@ -1,3 +1,9 @@
+try {
+  process.loadEnvFile();
+} catch {
+  // .env file is optional in production containers (Railway, EC2, Render)
+}
+
 import app from "./app.js";
 import { logger } from "./lib/logger.js";
 
