@@ -228,15 +228,24 @@ export async function initDatabase() {
           shipping_address TEXT,
           created_at TIMESTAMP DEFAULT NOW() NOT NULL
         );
-
-        -- Upgrade existing tables with missing columns
-        ALTER TABLE groups ADD COLUMN IF NOT EXISTS type TEXT DEFAULT 'public' NOT NULL;
-        ALTER TABLE groups ADD COLUMN IF NOT EXISTS city TEXT;
-        ALTER TABLE groups ADD COLUMN IF NOT EXISTS created_by_id INTEGER REFERENCES users(id);
-
-        ALTER TABLE posts ADD COLUMN IF NOT EXISTS hashtags JSONB DEFAULT '[]'::jsonb;
-        ALTER TABLE posts ADD COLUMN IF NOT EXISTS location TEXT;
       `);
+
+      // Individual column migrations to guarantee schema upgrades even if tables pre-exist
+      const columnMigrations = [
+        "ALTER TABLE groups ADD COLUMN IF NOT EXISTS type TEXT DEFAULT 'public' NOT NULL",
+        "ALTER TABLE groups ADD COLUMN IF NOT EXISTS city TEXT",
+        "ALTER TABLE groups ADD COLUMN IF NOT EXISTS created_by_id INTEGER REFERENCES users(id)",
+        "ALTER TABLE posts ADD COLUMN IF NOT EXISTS hashtags JSONB DEFAULT '[]'::jsonb",
+        "ALTER TABLE posts ADD COLUMN IF NOT EXISTS location TEXT",
+      ];
+
+      for (const query of columnMigrations) {
+        try {
+          await client.query(query);
+        } catch (mErr) {
+          console.warn(`Migration step notice: ${query}`, mErr);
+        }
+      }
 
       // Seed default demo user if not existing
       const passHash = hashPassword("password123");
