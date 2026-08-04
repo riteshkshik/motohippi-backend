@@ -25,7 +25,8 @@ const isPublicCloudDb =
   dbUrl.includes("rlwy.net") ||
   dbUrl.includes("sslmode=require") ||
   dbUrl.includes("neon.tech") ||
-  dbUrl.includes("supabase.co");
+  dbUrl.includes("supabase.co") ||
+  dbUrl.includes("supabase.com");
 
 const sslConfig = isInternalRailway
   ? false
