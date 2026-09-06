@@ -228,6 +228,23 @@ export async function initDatabase() {
           shipping_address TEXT,
           created_at TIMESTAMP DEFAULT NOW() NOT NULL
         );
+
+        CREATE TABLE IF NOT EXISTS insurance_inquiries (
+          id SERIAL PRIMARY KEY,
+          vehicle_category TEXT NOT NULL,
+          insurance_requirement TEXT NOT NULL,
+          manufacturer TEXT,
+          model TEXT,
+          year_of_purchase TEXT,
+          kms_driven TEXT,
+          city TEXT,
+          full_name TEXT NOT NULL,
+          mobile_number TEXT NOT NULL,
+          email TEXT,
+          preferred_time TEXT,
+          status TEXT DEFAULT 'pending' NOT NULL,
+          created_at TIMESTAMP DEFAULT NOW() NOT NULL
+        );
       `);
 
       // Individual column migrations to guarantee schema upgrades even if tables pre-exist

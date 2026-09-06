@@ -31,6 +31,28 @@ export const insurancePoliciesTable = pgTable("insurance_policies", {
   expiresAt: timestamp("expires_at").notNull(),
 });
 
+export const insuranceInquiriesTable = pgTable("insurance_inquiries", {
+  id: serial("id").primaryKey(),
+  vehicleCategory: text("vehicle_category").notNull(),
+  insuranceRequirement: text("insurance_requirement").notNull(),
+  manufacturer: text("manufacturer"),
+  model: text("model"),
+  yearOfPurchase: text("year_of_purchase"),
+  kmsDriven: text("kms_driven"),
+  city: text("city"),
+  fullName: text("full_name").notNull(),
+  mobileNumber: text("mobile_number").notNull(),
+  email: text("email"),
+  preferredTime: text("preferred_time"),
+  status: text("status").default("pending").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertInsurancePlanSchema = createInsertSchema(insurancePlansTable).omit({ id: true, createdAt: true });
 export type InsertInsurancePlan = z.infer<typeof insertInsurancePlanSchema>;
 export type InsurancePlan = typeof insurancePlansTable.$inferSelect;
+
+export const insertInsuranceInquirySchema = createInsertSchema(insuranceInquiriesTable).omit({ id: true, createdAt: true, status: true });
+export type InsertInsuranceInquiry = z.infer<typeof insertInsuranceInquirySchema>;
+export type InsuranceInquiry = typeof insuranceInquiriesTable.$inferSelect;
+
